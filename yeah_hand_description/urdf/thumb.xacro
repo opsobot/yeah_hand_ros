@@ -17,12 +17,10 @@
     </geometry>
   </collision>
 </link>
-<joint name="thumb_cmc_joint" type="revolute">
+<joint name="thumb_cmc_joint" type="fixed">
   <parent link="${parent}"/>
   <child link="thumb_base"/>
   <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
-  <axis xyz="0 0 1"/>
-  <limit lower="0" upper="1.57" effort="1.0" velocity="1.0"/>
 </joint>
 
 <link name="thumb_proximal">

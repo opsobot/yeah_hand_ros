@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot name="yeah_hand" xmlns:xacro="http://ros.org">
+<xacro:macro name="flexion_servomotor" params="servo_name mesh_filename parent x y z roll pitch yaw">
+
+<link name="${servo_name}">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
+    </geometry>
+    <material name="gray"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
+    </geometry>
+  </collision>
+</link>
+<joint name="${servo_name}_fixed_joint" type="fixed">
+  <parent link="${parent}"/>
+  <child link="${servo_name}"/>
+  <origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}"/>
+</joint>
+
+<link name="${servo_name}_tendon"/>
+<joint name="${servo_name}_joint" type="revolute">
+  <parent link="${servo_name}"/>
+  <child link="${servo_name}_tendon"/>
+  <axis xyz="0 0 1"/>
+  <limit lower="0" upper="6.28" effort="1.0" velocity="1.0"/>
+</joint>
+
+</xacro:macro>
+</robot>
