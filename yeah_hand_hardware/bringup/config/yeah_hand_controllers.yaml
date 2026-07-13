@@ -1,0 +1,18 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 10  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+forward_position_controller:
+  ros__parameters:
+    type: forward_command_controller/ForwardCommandController
+    joints:
+      - index_servo_joint
+      - middle_servo_joint
+      - ring_little_servo_joint
+      - thumb_servo_joint
+      - thumb_rotation_servo_joint
+    interface_name: position

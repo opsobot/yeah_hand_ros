@@ -1,0 +1,5 @@
+# yeah_hand_hardware_interface
+
+   The example shows how to implement robot hardware with separate communication to each actuator.
+
+Find the documentation in [doc/userdoc.rst](doc/userdoc.rst) or on [control.ros.org](https://control.ros.org/master/doc/ros2_control_demos/example_6/doc/userdoc.html).
