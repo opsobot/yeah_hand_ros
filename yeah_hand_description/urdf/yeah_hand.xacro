@@ -3,6 +3,7 @@
 <xacro:include filename="$(find yeah_hand_description)/urdf/fixed_component.xacro" />
 <xacro:include filename="$(find yeah_hand_description)/urdf/finger.xacro" />
 <xacro:include filename="$(find yeah_hand_description)/urdf/thumb.xacro" />
+<xacro:include filename="$(find yeah_hand_description)/urdf/servomotor.xacro" />
 
   <material name="gray">
     <color rgba="0.7 0.7 0.7 1.0"/>
@@ -19,22 +20,22 @@
   <!--  Thumb  -->
   <xacro:fixed_component component_name="trs_platform" mesh_filename="TRS Platform" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
   <xacro:fixed_component component_name="thumb_rotation_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="0.01875" y="0.002" z="0.1245" roll="0" pitch="0" yaw="0"/>
-  <xacro:thumb component_name="thumb_base" mesh_filename="Thumb Base" parent = "thumb_rotation_servo" x="0" y="0" z="-0.001"/>
+  <xacro:thumb parent = "thumb_rotation_servo" x="0" y="0" z="-0.001" mimic_joint="thumb_servo_joint" mcp_k="-0.227" ip_k="-0.0689"/>
 
   <!--  Other fingers  -->
-  <xacro:finger prefix="index" x_offset="0.0" z_offset="0.0" />
-  <xacro:finger prefix="middle" x_offset="-0.02" z_offset="0.0" />
-  <xacro:finger prefix="ring" x_offset="-0.041" z_offset="-0.004" />
-  <xacro:finger prefix="little" x_offset="-0.0635" z_offset="-0.014" />
+  <xacro:finger prefix="index" x_offset="0.0" z_offset="0.0" mimic_joint="index_servo_joint" mcp_k="-0.22" pip_k="-0.305" dip_k="-0.12"/>
+  <xacro:finger prefix="middle" x_offset="-0.02" z_offset="0.0" mimic_joint="middle_servo_joint" mcp_k="-0.22" pip_k="-0.305" dip_k="-0.12"/>
+  <xacro:finger prefix="ring" x_offset="-0.041" z_offset="-0.004" mimic_joint="ring_little_servo_joint" mcp_k="-0.22" pip_k="-0.305" dip_k="-0.12"/>
+  <xacro:finger prefix="little" x_offset="-0.0635" z_offset="-0.014" mimic_joint="ring_little_servo_joint" mcp_k="-0.22" pip_k="-0.305" dip_k="-0.12"/>
 
   <!--  Logic Board  -->
   <xacro:fixed_component component_name="logic_board" mesh_filename="WS-ESP32-Servo-Driver-Board" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0" />
 
   <!--  Servos  -->
-  <xacro:fixed_component component_name="index_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="0.0137" y="-0.016" z="0.0673" roll="-1.57" pitch="0" yaw="0" />
-  <xacro:fixed_component component_name="ring_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="-0.0137" y="-0.016" z="0.0425" roll="-1.57" pitch="3.14" yaw="0" />
-  <xacro:fixed_component component_name="middle_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="0.0137" y="-0.016" z="0.017" roll="-1.57" pitch="0" yaw="0" />
-  <xacro:fixed_component component_name="thumb_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="-0.01107" y="-0.021" z="0.09025" roll="-1.57" pitch="1.57" yaw="0" />
+  <xacro:servomotor servo_name="index_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="0.0137" y="-0.016" z="0.0673" roll="-1.57" pitch="0" yaw="0" />
+  <xacro:servomotor servo_name="ring_little_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="-0.0137" y="-0.016" z="0.0425" roll="-1.57" pitch="3.14" yaw="0" />
+  <xacro:servomotor servo_name="middle_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="0.0137" y="-0.016" z="0.017" roll="-1.57" pitch="0" yaw="0" />
+  <xacro:servomotor servo_name="thumb_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="-0.01107" y="0.02" z="0.09025" roll="-1.57" pitch="1.57" yaw="3.14" />
 
   <!--  Covers  -->
   <xacro:fixed_component component_name="upper_cover" mesh_filename="Upper Cover" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>

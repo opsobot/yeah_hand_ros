@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="yeah_hand" xmlns:xacro="http://ros.org">
-<xacro:macro name="finger" params="prefix x_offset z_offset">
+<xacro:macro name="finger" params="prefix x_offset z_offset mimic_joint mcp_k pip_k dip_k">
 
   <link name="${prefix}_base">
     <visual>
@@ -46,6 +46,7 @@
     <origin xyz="0 0 0.014" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
     <limit lower="-1.40" upper="0" effort="1.0" velocity="1.0"/>
+    <mimic joint="${mimic_joint}" multiplier="${mcp_k}" offset="0.0"/>
   </joint>
 
   <link name="${prefix}_medial">
@@ -70,6 +71,7 @@
     <origin xyz="0 0.003 0.048" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
     <limit lower="-1.92" upper="0" effort="1.0" velocity="1.0"/>
+    <mimic joint="${mimic_joint}" multiplier="${pip_k}" offset="0.0"/>
   </joint>
   
   <link name="${prefix}_distal">
@@ -94,6 +96,7 @@
     <origin xyz="0 -0.0012 0.0265" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
     <limit lower="-0.8" upper="0" effort="1.0" velocity="1.0"/>
+    <mimic joint="${mimic_joint}" multiplier="${dip_k}" offset="0.0"/>
   </joint>
 </xacro:macro>
 </robot>
