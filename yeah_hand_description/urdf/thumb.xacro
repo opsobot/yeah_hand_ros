@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<robot name="yeah_hand" xmlns:xacro="http://ros.org">
+<xacro:macro name="thumb" params="component_name mesh_filename parent x y z">
+
+<link name="${component_name}">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
+    </geometry>
+    <material name="gray"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
+    </geometry>
+  </collision>
+</link>
+<joint name="${component_name}_joint" type="revolute">
+  <parent link="${parent}"/>
+  <child link="${component_name}"/>
+  <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+  <axis xyz="0 0 1"/>
+  <limit lower="0" upper="1.57" effort="1.0" velocity="1.0"/>
+</joint>
+
+<link name="thumb_proximal">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/Thumb Proximal.dae"/>
+    </geometry>
+    <material name="gray"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/Thumb Proximal.dae"/>
+    </geometry>
+  </collision>
+</link>
+<joint name="thumb_proximal_joint" type="revolute">
+  <parent link="thumb_base"/>
+  <child link="thumb_proximal"/>
+  <origin xyz="0.053 0.0132 0.026" rpy="-0.5 -0.45 0.25"/>
+  <axis xyz="0 1 0"/>
+  <limit lower="-1.409" upper="0" effort="1.0" velocity="1.0"/>
+</joint>
+
+<link name="thumb_distal">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/Thumb Distal.dae"/>
+    </geometry>
+    <material name="gray"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/Thumb Distal.dae"/>
+    </geometry>
+  </collision>
+</link>
+<joint name="thumb_distal_joint" type="revolute">
+  <parent link="thumb_proximal"/>
+  <child link="thumb_distal"/>
+  <origin xyz="0.0382 0 -0.0004" rpy="0 0 0"/>
+  <axis xyz="0 1 0"/>
+  <limit lower="-0.424" upper="0" effort="1.0" velocity="1.0"/>
+</joint>
+</xacro:macro>
+</robot>

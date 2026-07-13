@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<robot name="yeah_hand" xmlns:xacro="http://ros.org">
+<xacro:macro name="finger" params="prefix x_offset z_offset">
+
+  <link name="${prefix}_base">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Base.dae"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Base.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="${prefix}_base_joint" type="fixed">
+    <parent link="skeleton"/>
+    <child link="${prefix}_base"/>
+    <origin xyz="${0.032 + x_offset} -0.003 ${0.185 + z_offset}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="${prefix}_proximal">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Proximal.dae"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Proximal.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${prefix}_mcp_joint" type="revolute">
+    <parent link="${prefix}_base"/>
+    <child link="${prefix}_proximal"/>
+    <origin xyz="0 0 0.014" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.40" upper="0" effort="1.0" velocity="1.0"/>
+  </joint>
+
+  <link name="${prefix}_medial">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Medial.dae"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Medial.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${prefix}_pip_joint" type="revolute">
+    <parent link="${prefix}_proximal"/>
+    <child link="${prefix}_medial"/>
+    <origin xyz="0 0.003 0.048" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.92" upper="0" effort="1.0" velocity="1.0"/>
+  </joint>
+  
+  <link name="${prefix}_distal">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Distal.dae"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://yeah_hand_description/meshes/Index Distal.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="${prefix}_dip_joint" type="revolute">
+    <parent link="${prefix}_medial"/>
+    <child link="${prefix}_distal"/>
+    <origin xyz="0 -0.0012 0.0265" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-0.8" upper="0" effort="1.0" velocity="1.0"/>
+  </joint>
+</xacro:macro>
+</robot>
