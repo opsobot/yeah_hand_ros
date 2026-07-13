@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<robot name="yeah_hand" xmlns:xacro="http://ros.org">
+<xacro:macro name="fixed_component" params="component_name mesh_filename parent x y z roll pitch yaw">
+
+<link name="${component_name}">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
+    </geometry>
+    <material name="gray"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
+    </geometry>
+  </collision>
+</link>
+<joint name="${component_name}_joint" type="fixed">
+  <parent link="${parent}"/>
+  <child link="${component_name}"/>
+  <origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}"/>
+</joint>
+</xacro:macro>
+</robot>
