@@ -72,6 +72,42 @@ public:
     return true;
   }
 
+  bool readLine(std::string & line)
+  {
+    line.clear();
+    char ch = 0;
+
+    while (true) {
+      ssize_t n = ::read(fd_, &ch, 1);
+      if (n < 0) {
+        if (errno == EINTR) {
+          continue;  // interrupted, retry
+        }
+        std::cerr << "read failed: " << strerror(errno) << std::endl;
+        return false;
+      }
+      if (n == 0) {
+        // EOF or no data; you can treat this as non-fatal or fatal depending on your design
+        return false;
+      }
+
+      // Accumulate characters until newline
+      if (ch == '\n') {
+        break;
+      }
+      line.push_back(ch);
+
+      // Optional safety: cap line length
+      if (line.size() > 512) {
+        std::cerr << "readLine: line too long, discarding" << std::endl;
+        line.clear();
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   bool isOpen(){
     return fd_ >= 0;
   }

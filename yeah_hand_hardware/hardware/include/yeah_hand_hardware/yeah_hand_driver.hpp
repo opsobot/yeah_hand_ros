@@ -56,6 +56,9 @@ public:
   hardware_interface::return_type write(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
+//  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
+//  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
+
 private:
   std::vector<double> joint_position_states_;
   std::vector<double> joint_velocity_states_;
