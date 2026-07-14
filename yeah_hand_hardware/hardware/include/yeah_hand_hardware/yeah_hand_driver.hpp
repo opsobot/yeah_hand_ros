@@ -29,6 +29,8 @@
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "rclcpp/macros.hpp"
 
+#include "yeah_hand_hardware/btserial.h"
+
 namespace yeah_hand
 {
 class YeahHandSystem : public hardware_interface::SystemInterface
@@ -54,6 +56,13 @@ public:
   hardware_interface::return_type write(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
+private:
+  std::vector<double> joint_position_states_;
+  std::vector<double> joint_velocity_states_;
+  std::vector<double> joint_position_commands_;
+
+private:
+  BtSerial *bt_;
 };
 
 }  // namespace yeah_hand

@@ -80,6 +80,13 @@ hardware_interface::CallbackReturn YeahHandSystem::on_init(
     }
   }
 
+  joint_position_commands_.assign(info_.joints.size(), 0.0);
+  joint_position_states_.assign(info_.joints.size(), 0.0);
+  joint_velocity_states_.assign(info_.joints.size(), 0.0);
+
+  // BT
+  bt_ = new BtSerial("/dev/rfcomm0", B115200);
+
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -133,7 +140,36 @@ hardware_interface::return_type YeahHandSystem::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
 
-  return hardware_interface::return_type::OK;
+  if (!bt_->isOpen()) {
+     RCLCPP_ERROR(rclcpp::get_logger("YeahHandSystem"), "BT port not open");
+     return hardware_interface::return_type::ERROR;
+   }
+
+   std::ostringstream ss;
+
+   for (size_t i = 0; i < joint_position_commands_.size(); ++i) {
+     double cmd = joint_position_commands_[i];
+
+     if (std::isnan(cmd) || std::isinf(cmd)) {
+       RCLCPP_ERROR(rclcpp::get_logger("YeahHandSystem"),"Invalid command for joint %zu", i);
+       return hardware_interface::return_type::ERROR;
+     }
+
+     int servo_units = static_cast<int>(std::lround(cmd));
+     ss << "," << servo_units;
+   }
+
+   ss << "\r\n";
+   std::cout << " ********* " << ss.str() << std::endl;
+
+
+//   if (!bt_->writeString(ss.str())) {
+//     RCLCPP_ERROR(rclcpp::get_logger("YeahHandSystem"), "BT write failed");
+//     return hardware_interface::return_type::ERROR;
+//   }
+
+   return hardware_interface::return_type::OK;
+// }
 }
 
 }  // namespace yeah_hand
