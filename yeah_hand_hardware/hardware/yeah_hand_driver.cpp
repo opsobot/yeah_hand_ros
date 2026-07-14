@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Stogl Robotics Consulting UG (haftungsbeschränkt)
+﻿// Copyright (c) 2021, Stogl Robotics Consulting UG (haftungsbeschränkt)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,56 +135,79 @@ hardware_interface::return_type YeahHandSystem::read(
   // For now, we’ll mirror commanded positions into state, so /joint_states reflects the commands.
   // Later, you’ll replace this with real sensor readings from Yeah Hand.
 
-  const double index       = get_command("index_servo_joint/position");
-  const double middle      = get_command("middle_servo_joint/position");
-  const double ring_little = get_command("ring_little_servo_joint/position");
-  const double thumb       = get_command("thumb_servo_joint/position");
-  const double thumb_rot   = get_command("thumb_rotation_servo_joint/position");
+//  const double index       = get_command("index_servo_joint/position");
+//  const double middle      = get_command("middle_servo_joint/position");
+//  const double ring_little = get_command("ring_little_servo_joint/position");
+//  const double thumb       = get_command("thumb_servo_joint/position");
+//  const double thumb_rot   = get_command("thumb_rotation_servo_joint/position");
 
   // Update state interfaces
-  set_state("index_servo_joint/position", index);
-  set_state("middle_servo_joint/position", middle);
-  set_state("ring_little_servo_joint/position", ring_little);
-  set_state("thumb_servo_joint/position", thumb);
-  set_state("thumb_rotation_servo_joint/position", thumb_rot);
+//  set_state("index_servo_joint/position", index);
+//  set_state("middle_servo_joint/position", middle);
+//  set_state("ring_little_servo_joint/position", ring_little);
+//  set_state("thumb_servo_joint/position", thumb);
+//  set_state("thumb_rotation_servo_joint/position", thumb_rot);
 
   // get factor values from yeah hand via BT
-//  std::string line;
-//  if (!bt_->readLine(line)) {
-//    RCLCPP_ERROR(rclcpp::get_logger("YeahHandSystem"), "BT read failed");
-//    return hardware_interface::return_type::ERROR;
-//  }
+  std::string line;
+  bool success_read = bt_->readLine(line);
+  std::cout << "success_read:" << success_read << std::endl;
 
-//  auto cmd = line.substr(0,4);
-//  if(cmd == "ROS "){
-//    // get index factor
-//    size_t value_start = 4;
-//    size_t value_end = line.find_first_of(' ', value_start + 1);
-//    const int index_factor = std::stoi(cmd.substr(value_start, value_end));
-//    // get middle factor
-//    value_start = value_end + 1;
-//    value_end = line.find_first_of(' ', value_start + 1);
-//    const int middle_factor = std::stoi(cmd.substr(value_start, value_end));
-//    // get ring_little factor
-//    value_start = value_end + 1;
-//    value_end = line.find_first_of(' ', value_start + 1);
-//    const int ring_little_factor = std::stoi(cmd.substr(value_start, value_end));
-//    // get thumb factor
-//    value_start = value_end + 1;
-//    value_end = line.find_first_of(' ', value_start + 1);
-//    const int thumb_factor = std::stoi(cmd.substr(value_start, value_end));
-//    // get thumb_rotation factor
-//    value_start = value_end + 1;
-//    value_end = line.find_first_of(' ', value_start + 1);
-//    const int thumb_rotation_factor = std::stoi(cmd.substr(value_start, value_end));
+  if (!success_read) {
+    return hardware_interface::return_type::OK;
+  }
 
-//    std::cout<< index_factor
-//             << middle_factor
-//             << ring_little_factor
-//             << thumb_factor
-//             << thumb_rotation_factor << std::endl;
+  std::cout<< "LINE:"<< line << std::endl;
 
-//  }
+  auto cmd = line.substr(0,4);
+  if(cmd == "ROS "){
+    try{
+      // get index factor
+      size_t value_start = 4;
+      size_t value_end = line.find_first_of(' ', value_start);
+      const int index_factor = std::stoi(line.substr(value_start, value_end));
+      // get middle factor
+      value_start = value_end + 1;
+      value_end = line.find_first_of(' ', value_start + 1);
+      const int middle_factor = std::stoi(line.substr(value_start, value_end));
+      // get ring_little factor
+      value_start = value_end + 1;
+      value_end = line.find_first_of(' ', value_start + 1);
+      const int ring_little_factor = std::stoi(line.substr(value_start, value_end));
+      // get thumb factor
+      value_start = value_end + 1;
+      value_end = line.find_first_of(' ', value_start + 1);
+      const int thumb_factor = std::stoi(line.substr(value_start, value_end));
+      // get thumb_rotation factor
+      value_start = value_end + 1;
+      value_end = line.find_first_of(' ', value_start + 1);
+      const int thumb_rotation_factor = std::stoi(line.substr(value_start, value_end));
+
+      std::cout<< "READ " << index_factor << ","
+               << middle_factor<< ","
+               << ring_little_factor<< ","
+               << thumb_factor<< ","
+               << thumb_rotation_factor << std::endl;
+
+      double index = (static_cast<double>(index_factor) / 100.0) * 6.28;
+      double middle = (static_cast<double>(middle_factor) / 100.0) * 6.28;
+      double ring_little = (static_cast<double>(ring_little_factor) / 100.0) * 6.28;
+      double thumb = (static_cast<double>(thumb_factor) / 100.0) * 6.28;
+      double thumb_rotation = (static_cast<double>(thumb_rotation_factor) / 100.0) * 1.57;
+      set_state("index_servo_joint/position", index);
+      set_state("middle_servo_joint/position", middle);
+      set_state("ring_little_servo_joint/position", ring_little);
+      set_state("thumb_servo_joint/position", thumb);
+      set_state("thumb_rotation_servo_joint/position", thumb_rotation);
+    }
+    catch (const std::exception & e) {
+      RCLCPP_ERROR(get_logger(),
+                   "BT parse failed (stod): '%s' — %s",
+                   line.c_str(), e.what());
+      // swallow the exception so controller_manager doesn't see it
+      return hardware_interface::return_type::OK;
+    }
+  }
 
   return hardware_interface::return_type::OK;
 }
@@ -209,7 +232,7 @@ hardware_interface::return_type YeahHandSystem::write(
   const int middle_factor = static_cast<int>((middle / 6.28) * 100);
   const int ring_little_factor = static_cast<int>((ring_little / 6.28) * 100);
   const int thumb_factor = static_cast<int>((thumb / 6.28) * 100);
-  const int thumb_rot_factor = static_cast<int>((thumb_rot / 6.28) * 100);
+  const int thumb_rot_factor = static_cast<int>((thumb_rot / 1.57) * 100);
 
   std::ostringstream ss;
   ss << "ROS "
