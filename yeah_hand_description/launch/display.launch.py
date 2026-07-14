@@ -10,9 +10,6 @@ def generate_launch_description():
     xacro_file = os.path.join(pkg_share, 'urdf', 'yeah_hand.xacro')
     rviz_config = os.path.join(pkg_share, 'rviz', 'yeah_hand.rviz')
 
-    #with open(xacro_file, 'r') as infp:
-    #    robot_description = infp.read()
-
     # Process the Xacro file to URDF string
     # (This automatically resolves $(find ...) tags inside the files)
     robot_description_config = xacro.process_file(xacro_file)
@@ -26,12 +23,12 @@ def generate_launch_description():
             output='screen',
             parameters=[{'robot_description': robot_description_xml}]
         ),
-        Node(
-            package='joint_state_publisher_gui',
-            executable='joint_state_publisher_gui',
-            name='joint_state_publisher_gui',
-            output='screen'
-        ),
+#        Node(
+#            package='joint_state_publisher_gui',
+#            executable='joint_state_publisher_gui',
+#            name='joint_state_publisher_gui',
+#            output='screen'
+#        ),
         Node(
             package='rviz2',
             executable='rviz2',
