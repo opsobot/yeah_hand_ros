@@ -33,7 +33,7 @@ public:
     tty.c_lflag = 0;
     tty.c_oflag = 0;
     tty.c_cc[VMIN]  = 0;
-    tty.c_cc[VTIME] = 10;   // 1.0 s read timeout
+    tty.c_cc[VTIME] = 1;   // 100 ms read timeout
 
     tty.c_iflag &= ~(IXON | IXOFF | IXANY);
     tty.c_cflag |= (CLOCAL | CREAD);
