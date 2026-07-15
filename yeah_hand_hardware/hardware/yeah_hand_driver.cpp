@@ -289,15 +289,14 @@ hardware_interface::return_type YeahHandSystem::read(
   //  set_state("thumb_rotation_servo_joint/position", thumb_rot);
 
   // get factor values from yeah hand via BT
-  std::string line;
-  bool success_read = bt_->readLine(line);
-  std::cout << "success_read:" << success_read << std::endl;
+//  std::string line;
+//  bool success_read = bt_->readLine(line);
+//  std::cout << "success_read:" << success_read << std::endl;
+//  if (!success_read) {
+//    return hardware_interface::return_type::OK;
+//  }
 
-  if (!success_read) {
-    return hardware_interface::return_type::OK;
-  }
-
-  std::cout<< "LINE:"<< line << std::endl;  
+//  std::cout<< "LINE:"<< line << std::endl;
 
   std::vector<int> factor(info_.joints.size());
   std::vector<int> temperature(info_.joints.size());
@@ -305,45 +304,37 @@ hardware_interface::return_type YeahHandSystem::read(
   std::vector<int> amperage(info_.joints.size());
   std::vector<int> load(info_.joints.size());
 
-  if(decodePacket(line, "ROSPOS ", factor)){
+  std::string line = "";
+  if(bt_->readLine(line) && decodePacket(line, "ROSPOS ", factor)){
     logPacket("READ factor", factor);
     std::vector<double> c_factor;
     convertFactor(factor, c_factor);
     setFactorState(c_factor);
-  } else
-  if(decodePacket(line, "ROSTEMP ", temperature)){
+  }else
+  if(bt_->readLine(line) && decodePacket(line, "ROSLOAD ", load)){
+      logPacket("READ load", load);
+      std::vector<double> c_load;
+      convertLoad(load, c_load);
+      setLoadState(c_load);
+  }else
+  if(bt_->readLine(line) && decodePacket(line, "ROSVOLT ", voltage)){
+      logPacket("READ voltage", voltage);
+      std::vector<double> c_voltage;
+      convertVoltage(voltage, c_voltage);
+      setVoltageState(c_voltage);
+  }else
+  if(bt_->readLine(line) && decodePacket(line, "ROSTEMP ", temperature)){
     logPacket("READ temperature", temperature);
     std::vector<double> c_temperature;
     convertTemperature(temperature, c_temperature);
     setTemperatureState(c_temperature);
   }else
-  if(decodePacket(line, "ROSVOLT ", voltage)){
-    logPacket("READ voltage", voltage);
-    std::vector<double> c_voltage;
-    convertVoltage(voltage, c_voltage);
-    setVoltageState(c_voltage);
-  }
-  else
-    if(decodePacket(line, "ROSAMPR ", amperage)){
+  if(bt_->readLine(line) && decodePacket(line, "ROSAMPR ", amperage)){
       logPacket("READ amperage", amperage);
       std::vector<double> c_amperage;
       convertAmperage(amperage, c_amperage);
       setAmperageState(c_amperage);
-    }
-  else
-    if(decodePacket(line, "ROSLOAD ", load)){
-      logPacket("READ load", load);
-      std::vector<double> c_load;
-      convertLoad(load, c_load);
-      setLoadState(c_load);
-    }
-  else {
-    return hardware_interface::return_type::OK;
   }
-
-
-
-    //TODO convrsion and setters for temp cur volt torq
 
   return hardware_interface::return_type::OK;
 }
