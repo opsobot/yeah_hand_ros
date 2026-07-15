@@ -11,26 +11,46 @@
   <joint name="index_servo_joint">
     <command_interface name="position"/>
     <state_interface name="position"/>
+    <state_interface name="temperature"/>
+    <state_interface name="amperage"/>
+    <state_interface name="voltage"/>
+    <state_interface name="load"/>
   </joint>
 
   <joint name="middle_servo_joint">
     <command_interface name="position"/>
     <state_interface name="position"/>
+    <state_interface name="temperature"/>
+    <state_interface name="amperage"/>
+    <state_interface name="voltage"/>
+    <state_interface name="load"/>
   </joint>
 
   <joint name="ring_little_servo_joint">
     <command_interface name="position"/>
     <state_interface name="position"/>
+    <state_interface name="temperature"/>
+    <state_interface name="amperage"/>
+    <state_interface name="voltage"/>
+    <state_interface name="load"/>
   </joint>
 
   <joint name="thumb_servo_joint">
     <command_interface name="position"/>
     <state_interface name="position"/>
+    <state_interface name="temperature"/>
+    <state_interface name="amperage"/>
+    <state_interface name="voltage"/>
+    <state_interface name="load"/>
   </joint>
 
   <joint name="thumb_rotation_servo_joint">
     <command_interface name="position"/>
     <state_interface name="position"/>
+    <state_interface name="temperature"/>
+    <state_interface name="amperage"/>
+    <state_interface name="voltage"/>
+    <state_interface name="load"/>
   </joint>
 </ros2_control>
 

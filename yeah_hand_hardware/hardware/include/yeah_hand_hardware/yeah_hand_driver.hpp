@@ -13,7 +13,7 @@
 // limitations under the License.
 
 //
-// Authors: Subhas Das, Denis Stogl
+// Author: Vittorio Lumare
 //
 
 #pragma once
@@ -56,12 +56,22 @@ public:
   hardware_interface::return_type write(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
-//  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
-//  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
+private:
+  bool decodePacket(const std::string &line, const std::string &expected_cmd, std::vector<int> &data);
+  void setFactorState(const std::vector<double> &c_factor);
+  void setTemperatureState(const std::vector<double> &temperature);
+  void setVoltageState(const std::vector<double> &voltage);
+  void setAmperageState(const std::vector<double> &amperage);
+  void setLoadState(const std::vector<double> &load);
 
 private:
+  const size_t expected_state_intefaces_count = 5;
   std::vector<double> joint_position_states_;
-  std::vector<double> joint_velocity_states_;
+  std::vector<double> joint_temperature_states_;
+  std::vector<double> joint_amperage_states_;
+  std::vector<double> joint_voltage_states_;
+  std::vector<double> joint_load_states_;
+
   std::vector<double> joint_position_commands_;
 
 private:
