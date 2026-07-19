@@ -297,7 +297,7 @@ hardware_interface::return_type YeahHandSystem::read(
 //  }
 
 //  std::cout<< "LINE:"<< line << std::endl;
-
+  auto t0 = std::chrono::steady_clock::now();
   std::vector<int> factor(info_.joints.size());
   std::vector<int> temperature(info_.joints.size());
   std::vector<int> voltage(info_.joints.size());
@@ -305,36 +305,44 @@ hardware_interface::return_type YeahHandSystem::read(
   std::vector<int> load(info_.joints.size());
 
   std::string line = "";
-  if(bt_->readLine(line) && decodePacket(line, "ROSPOS ", factor)){
+  if((bt_->readLine(line) && decodePacket(line, "ROSPOS ", factor))){
+//    std::cout<< "LINE:"<< line << std::endl;
     logPacket("READ factor", factor);
     std::vector<double> c_factor;
     convertFactor(factor, c_factor);
     setFactorState(c_factor);
-  }else
+  }
   if(bt_->readLine(line) && decodePacket(line, "ROSLOAD ", load)){
-      logPacket("READ load", load);
-      std::vector<double> c_load;
-      convertLoad(load, c_load);
-      setLoadState(c_load);
-  }else
+//    std::cout<< "LINE:"<< line << std::endl;
+    logPacket("READ load", load);
+    std::vector<double> c_load;
+    convertLoad(load, c_load);
+    setLoadState(c_load);
+  }
   if(bt_->readLine(line) && decodePacket(line, "ROSVOLT ", voltage)){
-      logPacket("READ voltage", voltage);
-      std::vector<double> c_voltage;
-      convertVoltage(voltage, c_voltage);
-      setVoltageState(c_voltage);
-  }else
+//    std::cout<< "LINE:"<< line << std::endl;
+    logPacket("READ voltage", voltage);
+    std::vector<double> c_voltage;
+    convertVoltage(voltage, c_voltage);
+    setVoltageState(c_voltage);
+  }
   if(bt_->readLine(line) && decodePacket(line, "ROSTEMP ", temperature)){
+//    std::cout<< "LINE:"<< line << std::endl;
     logPacket("READ temperature", temperature);
     std::vector<double> c_temperature;
     convertTemperature(temperature, c_temperature);
     setTemperatureState(c_temperature);
-  }else
-  if(bt_->readLine(line) && decodePacket(line, "ROSAMPR ", amperage)){
-      logPacket("READ amperage", amperage);
-      std::vector<double> c_amperage;
-      convertAmperage(amperage, c_amperage);
-      setAmperageState(c_amperage);
   }
+  if(bt_->readLine(line) && decodePacket(line, "ROSAMPR ", amperage)){
+//    std::cout<< "LINE:"<< line << std::endl;
+    logPacket("READ amperage", amperage);
+    std::vector<double> c_amperage;
+    convertAmperage(amperage, c_amperage);
+    setAmperageState(c_amperage);
+  }
+  auto t1 = std::chrono::steady_clock::now();
+
+  std::cout << "READ TIME : "<< (t1-t0)/1000 << std::endl;
 
   return hardware_interface::return_type::OK;
 }
