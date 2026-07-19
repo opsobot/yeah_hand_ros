@@ -29,17 +29,18 @@ public:
     cfsetispeed(&tty, baud);
 
     tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;
-    tty.c_iflag &= ~IGNBRK;
-    tty.c_lflag = 0;
-    tty.c_oflag = 0;
-    tty.c_cc[VMIN]  = 0;
-    tty.c_cc[VTIME] = 1;   // 100 ms read timeout
-
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY);
     tty.c_cflag |= (CLOCAL | CREAD);
-    tty.c_cflag &= ~(PARENB | PARODD);
-    tty.c_cflag &= ~CSTOPB;
-    tty.c_cflag &= ~CRTSCTS;
+    tty.c_cflag &= ~(PARENB | PARODD | CSTOPB | CRTSCTS);
+
+    tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP |
+                     INLCR | IGNCR | ICRNL |
+                     IXON | IXOFF | IXANY);
+
+    tty.c_oflag &= ~OPOST;
+    tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+
+    tty.c_cc[VMIN]  = 0;
+    tty.c_cc[VTIME] = 0;
 
     if (tcsetattr(fd_, TCSANOW, &tty) != 0) {
       close(fd_);
@@ -48,9 +49,7 @@ public:
   }
 
   ~BtSerial() {
-    if (fd_ >= 0) {
-      close(fd_);
-    }
+    if (fd_ >= 0) close(fd_);
   }
 
   bool writeString(const std::string& msg) {
@@ -72,7 +71,7 @@ public:
     return true;
   }
 
-  bool readLine(std::string & line)
+  bool readLine(std::string& line)
   {
     line.clear();
     char ch = 0;
@@ -80,39 +79,35 @@ public:
     while (true) {
       ssize_t n = ::read(fd_, &ch, 1);
       if (n < 0) {
-        if (errno == EINTR) {
-          continue;  // interrupted, retry
-        }
+        if (errno == EINTR) continue;
         std::cerr << "read failed: " << strerror(errno) << std::endl;
         return false;
       }
       if (n == 0) {
-        // EOF or no data; you can treat this as non-fatal or fatal depending on your design
         return false;
       }
 
-      // Accumulate characters until newline
+      if (ch == '\r') continue;
+
       if (ch == '\n') {
-        break;
+        if (!line.empty()) return true;
+        continue;
       }
+
       line.push_back(ch);
 
-      // Optional safety: cap line length
       if (line.size() > 512) {
         std::cerr << "readLine: line too long, discarding" << std::endl;
         line.clear();
         return false;
       }
     }
-
-    return true;
   }
 
-  bool isOpen(){
+  bool isOpen() {
     return fd_ >= 0;
   }
 
 private:
   int fd_;
 };
-
