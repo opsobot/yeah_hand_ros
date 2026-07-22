@@ -6,8 +6,8 @@ Find the documentation in [doc/userdoc.rst](doc/userdoc.rst) or on [control.ros.
 
 
 # Set up bluetooth pairing and device file
-sudo rfcomm bind 0 94:51:DC:2D:B5:A2 1
+''' sudo rfcomm bind 0 94:51:DC:2D:B5:A2 1
 rfcomm -a
 ls -l /dev/rfcomm0
 sudo chmod 666 /dev/rfcomm0
-
+'''
