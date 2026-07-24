@@ -2,7 +2,10 @@
 
 The ROS2 repo for the Yeah Hand
 
+**Official development partner: Public Invention** [Public Invention Project Page](https://www.pubinv.org/project/yeah-robotic-hand/)
 
-Official development partner: Public Invention Public Invention Project Page
+![image](https://pubinv.b-cdn.net/wp-content/uploads/logo-tight.png)
 
-https://camo.githubusercontent.com/65193de7d3be992c19887efdaa3aca42b0810466aed4225993a9063469959e13/68747470733a2f2f707562696e762e622d63646e2e6e65742f77702d636f6e74656e742f75706c6f6164732f6c6f676f2d74696768742e706e67
+**Original design by Vittorio Lumare** [Hackaday Project Page](https://hackaday.io/project/204373)
+
+**Successor to OSHWA-certified [Rebelia V1](https://github.com/OPSOBOT/rebelia/tree/V1)**
