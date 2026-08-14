@@ -66,16 +66,6 @@ rcl_interfaces::msg::SetParametersResult YeahHandSystem::onSetParams(const std::
     if (p.get_name() == "thumb_rotation_servo_joint.load_limit"){
       pending_load_limit_[4] = static_cast<int>(p.as_int());
       load_limit_dirty_[4] = true;
-    }else
-    if (p.get_name() == "gesture"){
-      const std::string value = p.as_string();
-      if (std::find(allowed_gestures_.begin(), allowed_gestures_.end(), value) == allowed_gestures_.end()){
-        result.successful = false;
-        result.reason = "Invelid 'gesture' value '" + value + "'. Allowed values: MONKEY, POWER, PINCH";
-      }else{
-        pending_gesture_ = value;
-        gesture_dirty_ = true;
-      }
     }
   }
   return result;
@@ -103,11 +93,6 @@ hardware_interface::CallbackReturn YeahHandSystem::on_init(
   get_node()->declare_parameter("ring_little_servo_joint.load_limit", 200, load_limit_d);
   get_node()->declare_parameter("thumb_servo_joint.load_limit", 600, load_limit_d);
   get_node()->declare_parameter("thumb_rotation_servo_joint.load_limit", 200, load_limit_d);
-
-  // gesture parameter
-  rcl_interfaces::msg::ParameterDescriptor gesture_d;
-  gesture_d.description = "The gesture to set on the robotic hand.";
-  get_node()->declare_parameter("gesture", "MONKEY", gesture_d);
 
   cb_handle_ = get_node()->add_on_set_parameters_callback(std::bind(&YeahHandSystem::onSetParams, this, std::placeholders::_1));
 
@@ -439,19 +424,6 @@ hardware_interface::return_type YeahHandSystem::write(
   }
 
   std::ostringstream ss;
-
-  // Set Gesture
-  if(gesture_dirty_){
-    ss.str("");
-    ss.clear();
-
-    ss << pending_gesture_ << "\r\n";
-    if(!sendCmd(ss.str())){
-      return hardware_interface::return_type::ERROR;
-    }
-    gesture_dirty_ = false;
-    return hardware_interface::return_type::OK;
-  }
 
   // Set Load Limits
   bool load_limit_param_changed = false;
