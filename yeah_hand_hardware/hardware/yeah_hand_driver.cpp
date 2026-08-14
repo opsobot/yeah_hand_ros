@@ -32,6 +32,49 @@
 
 namespace yeah_hand
 {
+
+bool YeahHandSystem::sendCmd(const std::string & cmd){
+  if (!bt_->writeString(cmd)) {
+    RCLCPP_ERROR(rclcpp::get_logger("YeahHandSystem"), "BT write failed");
+    return false;
+  }
+  return true;
+}
+
+rcl_interfaces::msg::SetParametersResult YeahHandSystem::onSetParams(const std::vector<rclcpp::Parameter> & parameters){
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+
+  for (const auto & p: parameters){
+    if (p.get_name() == "index_servo_joint.load_limit"){
+      pending_load_limit_[0] = static_cast<int>(p.as_int());
+      load_limit_dirty_[0] = true;
+    }else
+    if (p.get_name() == "middle_servo_joint.load_limit"){
+      pending_load_limit_[0] = static_cast<int>(p.as_int());
+      load_limit_dirty_[0] = true;
+    }else
+    if (p.get_name() == "ring_little_servo_joint.load_limit"){
+      pending_load_limit_[0] = static_cast<int>(p.as_int());
+      load_limit_dirty_[0] = true;
+    }else
+    if (p.get_name() == "thumb_servo_joint.load_limit"){
+      pending_load_limit_[0] = static_cast<int>(p.as_int());
+      load_limit_dirty_[0] = true;
+    }else
+    if (p.get_name() == "thumb_rotation_servo_joint.load_limit"){
+      pending_load_limit_[0] = static_cast<int>(p.as_int());
+      load_limit_dirty_[0] = true;
+    }
+    if (p.get_name() == "thumb_rotation_servo_joint.load_limit"){
+      pending_load_limit_[0] = static_cast<int>(p.as_int());
+      load_limit_dirty_[0] = true;
+    }
+  }
+  return result;
+}
+
 hardware_interface::CallbackReturn YeahHandSystem::on_init(
   const hardware_interface::HardwareComponentInterfaceParams & params)
 {
@@ -42,6 +85,28 @@ hardware_interface::CallbackReturn YeahHandSystem::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
+  // Set params and callback
+  pending_load_limit_.assign(info_.joints.size(), 0);
+  load_limit_dirty_.assign(info_.joints.size(), false);
+
+  // load limit parameter
+  rcl_interfaces::msg::ParameterDescriptor load_limit_d;
+  load_limit_d.integer_range.push_back(rcl_interfaces::msg::IntegerRange().set__from_value(0).set__to_value(600));
+  get_node()->declare_parameter("index_servo_joint.load_limit", 200, load_limit_d);
+  get_node()->declare_parameter("middle_servo_joint.load_limit", 200, load_limit_d);
+  get_node()->declare_parameter("ring_little_servo_joint.load_limit", 200, load_limit_d);
+  get_node()->declare_parameter("thumb_servo_joint.load_limit", 600, load_limit_d);
+  get_node()->declare_parameter("thumb_rotation_servo_joint.load_limit", 200, load_limit_d);
+
+  // gesture parameter
+  rcl_interfaces::msg::ParameterDescriptor gesture_d;
+  // ?? gesture_d.
+  //get_node()->declare_parameter("gesture", "MONKEY", gesture_d);
+
+
+  cb_handle_ = get_node()->add_on_set_parameters_callback(std::bind(&YeahHandSystem::onSetParams, this, std::placeholders::_1));
+
+  // Check joint interfaces
   for (size_t i = 0; i<info_.joints.size(); i++){
 
     const hardware_interface::ComponentInfo & joint = info_.joints[i];
@@ -63,7 +128,7 @@ hardware_interface::CallbackReturn YeahHandSystem::on_init(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces.size() != expected_state_intefaces_count)
+    if (joint.state_interfaces.size() != expected_state_interfaces_count_)
     {
       RCLCPP_FATAL(
         get_logger(), "Joint '%s' has %zu state interface. 1 expected.", joint.name.c_str(),
@@ -211,11 +276,11 @@ inline void convertVoltage(const std::vector<int> & volt, std::vector<double> & 
 inline void convertAmperage(const std::vector<int> & amp, std::vector<double> & c_amp){
   // TODO CORRECT FROM TECHNICAL FILE
   c_amp.resize(amp.size());
-  c_amp.at(0) = static_cast<double>(amp.at(0))/10.0;
-  c_amp.at(1) = static_cast<double>(amp.at(1))/10.0;
-  c_amp.at(2) = static_cast<double>(amp.at(2))/10.0;
-  c_amp.at(3) = static_cast<double>(amp.at(3))/10.0;
-  c_amp.at(4) = static_cast<double>(amp.at(4))/10.0;
+  c_amp.at(0) = static_cast<double>(amp.at(0))*6.5/1000.0;
+  c_amp.at(1) = static_cast<double>(amp.at(1))*6.5/1000.0;
+  c_amp.at(2) = static_cast<double>(amp.at(2))*6.5/1000.0;
+  c_amp.at(3) = static_cast<double>(amp.at(3))*6.5/1000.0;
+  c_amp.at(4) = static_cast<double>(amp.at(4))*6.5/1000.0;
 }
 
 inline void convertLoad(const std::vector<int> & load, std::vector<double> & c_load){
@@ -226,6 +291,18 @@ inline void convertLoad(const std::vector<int> & load, std::vector<double> & c_l
   c_load.at(2) = static_cast<double>(load.at(2))/10.0;
   c_load.at(3) = static_cast<double>(load.at(3))/10.0;
   c_load.at(4) = static_cast<double>(load.at(4))/10.0;
+}
+
+inline size_t indexToId(const size_t index){
+  return index + 1;
+}
+
+inline size_t idToIndex(const size_t id){
+  if(id > 0){
+    return static_cast<size_t>(id - 1);
+  }else {
+    throw std::runtime_error("Motor ID must be greater than zero.");
+  }
 }
 
 void YeahHandSystem::setFactorState(const std::vector<double> &converted_factor){
@@ -296,7 +373,6 @@ hardware_interface::return_type YeahHandSystem::read(
 //    return hardware_interface::return_type::OK;
 //  }
 
-//  std::cout<< "LINE:"<< line << std::endl;
   auto t0 = std::chrono::steady_clock::now();
   std::vector<int> factor(info_.joints.size());
   std::vector<int> temperature(info_.joints.size());
@@ -357,6 +433,32 @@ hardware_interface::return_type YeahHandSystem::write(
      return hardware_interface::return_type::ERROR;
   }
 
+  std::ostringstream ss;
+
+  // Set Load Limits
+  bool load_limit_param_changed = false;
+  for (size_t i = 0; i < expected_state_interfaces_count_; i++ ){
+    if (load_limit_dirty_.at(i)){
+      auto motor_id = indexToId(i);
+      int lim = pending_load_limit_.at(i);
+
+      ss.str("");
+      ss.clear();
+      ss << "LIM " << motor_id << " " << lim << "\r\n";
+      if(!sendCmd(ss.str())){
+        return hardware_interface::return_type::ERROR;
+      }
+      load_limit_dirty_[i] = false;
+
+      load_limit_param_changed = true;
+    }
+  }
+
+  if(load_limit_param_changed){
+    return hardware_interface::return_type::OK;
+  }
+
+  // Set Joint Positions
   const double index       = get_command("index_servo_joint/position");
   const double middle      = get_command("middle_servo_joint/position");
   const double ring_little = get_command("ring_little_servo_joint/position");
@@ -370,7 +472,7 @@ hardware_interface::return_type YeahHandSystem::write(
   const int thumb_factor = static_cast<int>((thumb / 6.28) * 100);
   const int thumb_rot_factor = static_cast<int>((thumb_rot / 1.57) * 100);
 
-  std::ostringstream ss;
+
   ss << "ROS "
      << index_factor << " "
      << middle_factor << " "

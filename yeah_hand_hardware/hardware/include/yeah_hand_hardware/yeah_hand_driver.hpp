@@ -56,6 +56,8 @@ public:
   hardware_interface::return_type write(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
+  rcl_interfaces::msg::SetParametersResult onSetParams(const std::vector<rclcpp::Parameter> & parameters);
+
 private:
   bool decodePacket(const std::string &line, const std::string &expected_cmd, std::vector<int> &data);
   void setFactorState(const std::vector<double> &c_factor);
@@ -65,14 +67,23 @@ private:
   void setLoadState(const std::vector<double> &load);
 
 private:
-  const size_t expected_state_intefaces_count = 5;
+  const size_t expected_state_interfaces_count_ = 5;
   std::vector<double> joint_position_states_;
   std::vector<double> joint_temperature_states_;
   std::vector<double> joint_amperage_states_;
   std::vector<double> joint_voltage_states_;
   std::vector<double> joint_load_states_;
-
   std::vector<double> joint_position_commands_;
+
+private:
+  rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr cb_handle_;
+  std::vector<int> pending_load_limit_;
+  std::vector<bool> load_limit_dirty_;
+  int pending_gesture_;
+  bool gesture_dirty_;
+
+private:
+  bool sendCmd(const std::string & cmd);
 
 private:
   BtSerial *bt_;
