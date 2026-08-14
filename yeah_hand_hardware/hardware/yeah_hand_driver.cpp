@@ -52,24 +52,30 @@ rcl_interfaces::msg::SetParametersResult YeahHandSystem::onSetParams(const std::
       load_limit_dirty_[0] = true;
     }else
     if (p.get_name() == "middle_servo_joint.load_limit"){
-      pending_load_limit_[0] = static_cast<int>(p.as_int());
-      load_limit_dirty_[0] = true;
+      pending_load_limit_[1] = static_cast<int>(p.as_int());
+      load_limit_dirty_[1] = true;
     }else
     if (p.get_name() == "ring_little_servo_joint.load_limit"){
-      pending_load_limit_[0] = static_cast<int>(p.as_int());
-      load_limit_dirty_[0] = true;
+      pending_load_limit_[2] = static_cast<int>(p.as_int());
+      load_limit_dirty_[2] = true;
     }else
     if (p.get_name() == "thumb_servo_joint.load_limit"){
-      pending_load_limit_[0] = static_cast<int>(p.as_int());
-      load_limit_dirty_[0] = true;
+      pending_load_limit_[3] = static_cast<int>(p.as_int());
+      load_limit_dirty_[3] = true;
     }else
     if (p.get_name() == "thumb_rotation_servo_joint.load_limit"){
-      pending_load_limit_[0] = static_cast<int>(p.as_int());
-      load_limit_dirty_[0] = true;
-    }
-    if (p.get_name() == "thumb_rotation_servo_joint.load_limit"){
-      pending_load_limit_[0] = static_cast<int>(p.as_int());
-      load_limit_dirty_[0] = true;
+      pending_load_limit_[4] = static_cast<int>(p.as_int());
+      load_limit_dirty_[4] = true;
+    }else
+    if (p.get_name() == "gesture"){
+      const std::string value = p.as_string();
+      if (std::find(allowed_gestures_.begin(), allowed_gestures_.end(), value) == allowed_gestures_.end()){
+        result.successful = false;
+        result.reason = "Invelid 'gesture' value '" + value + "'. Allowed values: MONKEY, POWER, PINCH";
+      }else{
+        pending_gesture_ = value;
+        gesture_dirty_ = true;
+      }
     }
   }
   return result;
@@ -100,9 +106,8 @@ hardware_interface::CallbackReturn YeahHandSystem::on_init(
 
   // gesture parameter
   rcl_interfaces::msg::ParameterDescriptor gesture_d;
-  // ?? gesture_d.
-  //get_node()->declare_parameter("gesture", "MONKEY", gesture_d);
-
+  gesture_d.description = "The gesture to set on the robotic hand.";
+  get_node()->declare_parameter("gesture", "MONKEY", gesture_d);
 
   cb_handle_ = get_node()->add_on_set_parameters_callback(std::bind(&YeahHandSystem::onSetParams, this, std::placeholders::_1));
 
@@ -435,6 +440,19 @@ hardware_interface::return_type YeahHandSystem::write(
 
   std::ostringstream ss;
 
+  // Set Gesture
+  if(gesture_dirty_){
+    ss.str("");
+    ss.clear();
+
+    ss << pending_gesture_ << "\r\n";
+    if(!sendCmd(ss.str())){
+      return hardware_interface::return_type::ERROR;
+    }
+    gesture_dirty_ = false;
+    return hardware_interface::return_type::OK;
+  }
+
   // Set Load Limits
   bool load_limit_param_changed = false;
   for (size_t i = 0; i < expected_state_interfaces_count_; i++ ){
@@ -449,7 +467,6 @@ hardware_interface::return_type YeahHandSystem::write(
         return hardware_interface::return_type::ERROR;
       }
       load_limit_dirty_[i] = false;
-
       load_limit_param_changed = true;
     }
   }
@@ -472,7 +489,8 @@ hardware_interface::return_type YeahHandSystem::write(
   const int thumb_factor = static_cast<int>((thumb / 6.28) * 100);
   const int thumb_rot_factor = static_cast<int>((thumb_rot / 1.57) * 100);
 
-
+  ss.str("");
+  ss.clear();
   ss << "ROS "
      << index_factor << " "
      << middle_factor << " "

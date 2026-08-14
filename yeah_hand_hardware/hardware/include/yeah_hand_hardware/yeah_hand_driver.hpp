@@ -79,7 +79,8 @@ private:
   rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr cb_handle_;
   std::vector<int> pending_load_limit_;
   std::vector<bool> load_limit_dirty_;
-  int pending_gesture_;
+  std::string pending_gesture_;
+  const std::vector<std::string> allowed_gestures_ = {"MONKEY", "POWER","PINCH"};
   bool gesture_dirty_;
 
 private:
