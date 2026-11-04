@@ -71,6 +71,9 @@
   <xacro:property name="hand_box_x" value="0.098"/>  <!-- m -->
   <xacro:property name="hand_box_y" value="0.088"/>
   <xacro:property name="hand_box_z" value="0.216"/>
+  <xacro:property name="hand_ixx" value="${hand_mass / 12.0 * (hand_box_y**2 + hand_box_z**2)}"/>
+  <xacro:property name="hand_iyy" value="${hand_mass / 12.0 * (hand_box_x**2 + hand_box_z**2)}"/>
+  <xacro:property name="hand_izz" value="${hand_mass / 12.0 * (hand_box_x**2 + hand_box_y**2)}"/>
 
   <material name="gray">
     <color rgba="0.7 0.7 0.7 1.0"/>
@@ -82,7 +85,9 @@
 
   <link name="base_link"/>
 
-  <xacro:fixed_component component_name="skeleton" mesh_filename="Skeleton" parent = "base_link" x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="${hand_mass}"/>
+  <xacro:fixed_component component_name="skeleton" mesh_filename="Skeleton" parent = "base_link" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"
+    mass="${hand_mass}" com_x="${hand_com_x}" com_y="${hand_com_y}" com_z="${hand_com_z}"
+    ixx="${hand_ixx}" iyy="${hand_iyy}" izz="${hand_izz}"/>
 
   <!--  Thumb  -->
   <xacro:fixed_component component_name="trs_platform" mesh_filename="TRS Platform" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
