@@ -16,17 +16,15 @@
       <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
     </geometry>
   </collision>
-  <xacro:if value="${mass > 0}">
-    <!-- Lumped inertial: center of mass at the wrist center, inertia of a
-         solid box with the hand body envelope (see yeah_hand.xacro) -->
-    <inertial>
-      <origin xyz="${hand_com_x} ${hand_com_y} ${hand_com_z}" rpy="0 0 0"/>
-      <mass value="${mass}"/>
-      <inertia ixx="${mass / 12.0 * (hand_box_y**2 + hand_box_z**2)}" ixy="0" ixz="0"
-               iyy="${mass / 12.0 * (hand_box_x**2 + hand_box_z**2)}" iyz="0"
-               izz="${mass / 12.0 * (hand_box_x**2 + hand_box_y**2)}"/>
-    </inertial>
-  </xacro:if>
+  <!-- Center of mass at the wrist center, inertia of a solid box
+       with the hand body envelope (see yeah_hand.xacro) -->
+  <inertial>
+    <origin xyz="${hand_com_x} ${hand_com_y} ${hand_com_z}" rpy="0 0 0"/>
+    <mass value="${mass}"/>
+    <inertia ixx="${mass / 12.0 * (hand_box_y**2 + hand_box_z**2)}" ixy="0" ixz="0"
+             iyy="${mass / 12.0 * (hand_box_x**2 + hand_box_z**2)}" iyz="0"
+             izz="${mass / 12.0 * (hand_box_x**2 + hand_box_y**2)}"/>
+  </inertial>
 </link>
 <joint name="${component_name}_joint" type="fixed">
   <parent link="${parent}"/>
