@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="yeah_hand" xmlns:xacro="http://ros.org">
-<xacro:macro name="fixed_component" params="component_name mesh_filename parent x y z roll pitch yaw">
+<xacro:macro name="fixed_component" params="component_name mesh_filename parent x y z roll pitch yaw mass:=0 com_x:=0 com_y:=0 com_z:=0 ixx:=0 iyy:=0 izz:=0">
 
 <link name="${component_name}">
   <visual>
@@ -16,6 +16,11 @@
       <mesh filename="package://yeah_hand_description/meshes/${mesh_filename}.dae"/>
     </geometry>
   </collision>
+  <inertial>
+    <origin xyz="${com_x} ${com_y} ${com_z}" rpy="0 0 0"/>
+    <mass value="${mass}"/>
+    <inertia ixx="${ixx}" ixy="0" ixz="0" iyy="${iyy}" iyz="0" izz="${izz}"/>
+  </inertial>
 </link>
 <joint name="${component_name}_joint" type="fixed">
   <parent link="${parent}"/>
