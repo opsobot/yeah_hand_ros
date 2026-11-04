@@ -60,6 +60,21 @@
 <xacro:include filename="$(find yeah_hand_description)/urdf/flexion_servomotor.xacro" />
 <xacro:include filename="$(find yeah_hand_description)/urdf/rotation_servomotor.xacro" />
 
+  <!--  Mass properties  -->
+  <!-- Measured weight: 750 g with covers, 650 g without covers.
+       The center of mass is at the wrist center (origin of base_link).
+       Inertia is approximated as a solid box with the hand body envelope. -->
+  <xacro:arg name="with_covers" default="true"/>
+  <xacro:property name="with_covers" value="$(arg with_covers)"/>
+  <xacro:property name="hand_mass_no_covers" value="0.650"/>  <!-- kg -->
+  <xacro:property name="covers_mass" value="0.100"/>          <!-- kg, split over the 3 covers -->
+  <xacro:property name="hand_com_x" value="0.0"/>
+  <xacro:property name="hand_com_y" value="0.0"/>
+  <xacro:property name="hand_com_z" value="0.0"/>
+  <xacro:property name="hand_box_x" value="0.098"/>  <!-- m -->
+  <xacro:property name="hand_box_y" value="0.088"/>
+  <xacro:property name="hand_box_z" value="0.216"/>
+
   <material name="gray">
     <color rgba="0.7 0.7 0.7 1.0"/>
   </material>
@@ -70,7 +85,7 @@
 
   <link name="base_link"/>
 
-  <xacro:fixed_component component_name="skeleton" mesh_filename="Skeleton" parent = "base_link" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
+  <xacro:fixed_component component_name="skeleton" mesh_filename="Skeleton" parent = "base_link" x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="${hand_mass_no_covers}"/>
 
   <!--  Thumb  -->
   <xacro:fixed_component component_name="trs_platform" mesh_filename="TRS Platform" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
@@ -92,10 +107,12 @@
   <xacro:flexion_servomotor servo_name="middle_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="0.0137" y="-0.016" z="0.017" roll="-1.57" pitch="0" yaw="0" />
   <xacro:flexion_servomotor servo_name="thumb_servo" mesh_filename="WS-ST3215-Servomotor" parent = "skeleton" x="-0.01107" y="0.02" z="0.09025" roll="-1.57" pitch="1.57" yaw="3.14" />
 
-  <!--  Covers  -->
-  <xacro:fixed_component component_name="upper_cover" mesh_filename="Upper Cover" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
-  <xacro:fixed_component component_name="lower_cover_front" mesh_filename="Lower Cover Front" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
-  <xacro:fixed_component component_name="lower_cover_back" mesh_filename="Lower Cover Back" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0"/>
+  <!--  Covers (omit with with_covers:=false)  -->
+  <xacro:if value="${with_covers}">
+    <xacro:fixed_component component_name="upper_cover" mesh_filename="Upper Cover" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="${covers_mass / 3.0}"/>
+    <xacro:fixed_component component_name="lower_cover_front" mesh_filename="Lower Cover Front" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="${covers_mass / 3.0}"/>
+    <xacro:fixed_component component_name="lower_cover_back" mesh_filename="Lower Cover Back" parent = "skeleton" x="0" y="0" z="0" roll="0" pitch="0" yaw="0" mass="${covers_mass / 3.0}"/>
+  </xacro:if>
 
   <!--  Palm  -->
   <xacro:fixed_component component_name="palm" mesh_filename="Palm" parent = "skeleton" x="0" y="0" z="0"  roll="0" pitch="0" yaw="0"/>
